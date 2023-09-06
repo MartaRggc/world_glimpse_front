@@ -1,19 +1,16 @@
 from dotenv import load_dotenv
 import os
-
 import requests
 import streamlit as st
 import pandas as pd
-import geopandas as gpd
-from keplergl import KeplerGl
-import random as rd
-import numpy as np
 import numbers
 import plost
 
 load_dotenv()
+api_url = f"{os.environ.get('API_HOST')}:{os.environ.get('API_PORT')}"
 
-# State keys initialization:
+
+# State keys initialization to control the front flow:
 
 if "politics" not in st.session_state:
     st.session_state.politics = False
@@ -38,68 +35,6 @@ def activate_button(b):
 
 # st.set_page_config(layout="wide")
 st.title('Countries view')
-
-mex = gpd.read_file('mexico.geojson')  # cargar datos geoespaciales (multipolygon)
-mex = mex.rename(columns={'name': 'estado'})
-mex = mex.drop(columns=['created_at', "updated_at", "cartodb_id"])
-mex['color'] = [rd.random() for i in range(mex.shape[0])]
-mex.iloc[20, 1] = np.NaN
-mex.iloc[20, 2] = np.NaN
-
-map_1 = KeplerGl(height=300, width=1000)
-map_1.add_data(data=mex.copy(), name='Mexico States')
-
-map_1.config = {
-    "version": "v1",
-    "config": {
-        "visState": {
-            "layers": [
-                {
-                    "type": "geojson",
-                    "config": {
-                        "dataId": "Mexico States",
-                        "label": "Estado",
-                        "columns": {
-                            "geojson": "geometry"
-                        },
-                        "isVisible": True,
-                        "visConfig": {
-                            "opacity": 0.8,
-                            "strokeOpacity": 0.8,
-                            "thickness": 0.5,
-                            "strokeColor": [218, 112, 191],
-                            "filled": True,
-                            "colorField": {
-                                "name": "color",
-                                "type": "real"
-                            },
-                            "colorScale": "ordinal",
-                            "strokeColorRange": {
-                                "name": "ColorBrewer YlOrRd-6",
-                                "type": "sequential",
-                                "category": "ColorBrewer",
-                                "colors": [
-                                    "#FFFFB2",
-                                    "#FED976",
-                                    "#FEB24C",
-                                    "#FD8D3C",
-                                    "#FC4E2A",
-                                    "#E31A1C"
-                                ]
-                            }
-                        }
-                    },
-                    "visualChannels": {
-                        "colorField": {"name": "color", "type": "real"},
-                        "colorScale": "ordinal"
-                    }
-                }
-            ]
-        }
-    }
-}
-
-api_url = f"{os.environ.get('API_HOST')}:{os.environ.get('API_PORT')}"
 
 region_options = [i['region_name'] for i in requests.get(f'{api_url}/regions').json()]
 region_selected_name = st.selectbox('Region', region_options)
@@ -146,7 +81,12 @@ elif footprint_button:
 elif sexism_button:
     activate_button('gender')
 elif economy_button:
-    inequality_button('inequality')
+    activate_button('economy')
+elif inequality_button:
+    activate_button('inequality')
+
+st.write('##')
+
 
 if st.session_state.politics:
 
@@ -313,26 +253,110 @@ elif st.session_state.gender:
 
 
 elif st.session_state.general:
-    general_info = requests.get(f'{api_url}/country/{country_selected_id}/general').json()
-    st.header(country_selected_name)
-    try:
-        st.write('.'.join(general_info['summary'].split('.')[:5]) + '.')
-        st.write('#')
-    except:
-        pass
 
-    c3, c4 = st.columns([1, 1])
-    with c3:
-        st.markdown(f"**Capital:** {general_info['capital']}")
-        st.markdown(f"**Population:** {int(general_info['population']/(1e6))} millions")
+    try:
+        general_info = requests.get(f'{api_url}/country/{country_selected_id}/general').json()
+        st.header(country_selected_name)
         try:
-            st.markdown(f"**Languages:** {', '.join([i['name'] for i in general_info['languages']])}")
+            st.write('.'.join(general_info['summary'].split('.')[:5]) + '.')
+            st.write('#')
         except:
             pass
-        st.markdown(f"**Area:** {general_info['area']}")
 
-    with c4:
-        st.write('more')
+        c3, c4 = st.columns([1, 1])
+        with c3:
+            st.markdown(f"**Capital:** {general_info['capital']}")
+            st.markdown(f"**Population:** {int(general_info['population']/(1e6))} millions")
+            try:
+                st.markdown(f"**Languages:** {', '.join([i['name'] for i in general_info['languages']])}")
+            except:
+                pass
+            st.markdown(f"**Area:** {general_info['area']}")
+
+        with c4:
+            st.write('more')
+
+    except:
+        st.write(default_country)
+
+
+elif st.session_state.economy:
+
+    w = 0
+    gdp = requests.get(f'{api_url}/countries_gdp').json()
+    countries_gdp = gdp['countries']
+
+    for i in countries_gdp:
+        if i['country_id'] == country_selected_id:
+            w = 1
+            st.subheader('Total annual Gross Domestic Product, GDP (USD$)', divider='orange')
+
+            c5, c6 = st.columns([1,1])
+            with c5:
+                tgdp = i['total_gdp']
+                if tgdp < 1e6:
+                    st.header(f"{tgdp/(1e3)} K")
+                elif tgdp > 1e6 and tgdp < 1e9:
+                    st.header(f"{tgdp/(1e6)} M")
+                else:
+                    st.header(f"{tgdp /(1e9)} B")
+                st.subheader(f"World share:  {round(100 * i['world_share'], 2)} %")
+                st.write("#")
+                st.subheader("GDP per capita", divider='violet')
+                source3 = pd.DataFrame([i['gdp_capita'], i['ppp_gdp_capita'], gdp['median_ppp_gdp_capita']],
+                                       index=['Country GDP per capita', 'Per capita (PPP)',
+                                              'Worldwide median (PPP)']).T.reset_index()
+                plost.bar_chart(
+                    data=source3,
+                    bar='index', height=100, width=120,
+                    value=['Country GDP per capita', 'Per capita (PPP)', 'Worldwide median (PPP)'],
+                    legend=False,
+                    group=True
+                )
+
+
+    if w == 0:
+        st.write(default_country)
+
+
+elif st.session_state.inequality:
+
+    w = 0
+    ineq = requests.get(f'{api_url}/countries_inequality').json()
+    countries_ineq = ineq['countries']
+
+    for i in countries_ineq:
+        if i['country_id'] == country_selected_id:
+            w = 1
+            if isinstance(i['vulnerable_MP_pop'], float):
+                st.subheader('Multidimensional poverty (MP)', divider='red')
+                st.warning(f"{country_selected_name} is a country with a multidimensional poverty problem. "
+                           f"\nA person is considered to be MP poor when is deprived in a third or more of several indicators, "
+                           f"concerning health, education and living standard (see [ref](https://ophi.org.uk/multidimensional-poverty-index/)).")
+                col7, col8 = st.columns([1,1])
+
+                with col7:
+                    st.subheader('Population at MP risk:')
+                    st.header(f"{round(i['vulnerable_MP_pop'],2)} %")
+                with col8:
+                    st.subheader('Av. intensity of depravation:')
+                    st.header(f"{round(i['intensity_depravation_perc'],2)} %")
+
+                st.write("#")
+                st.subheader('Poverty contribution of each dimension (%)', divider='green')
+                data = {
+                    'Names': ['Education', 'Health', 'Living standard'],
+                    'Values': [
+                        i['education_contribution'],
+                        i['health_contribution'],
+                        i['living_standard_contribution']
+                    ]
+                }
+
+                st.bar_chart(pd.DataFrame(pd.DataFrame(data).set_index('Names')), color=(0, 150, 0))
+
+    if w == 0:
+        st.write(default_country)
 
 
 try:
