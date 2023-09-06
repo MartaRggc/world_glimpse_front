@@ -2290,6 +2290,20 @@ files = [
 ]
 
 [[package]]
+name = "python-restcountries"
+version = "2.0.0"
+description = "Python API Wrapper for restcountries.com"
+optional = false
+python-versions = "*"
+files = [
+    {file = "python-restcountries-2.0.0.tar.gz", hash = "sha256:17ef11e7a67f7ee1649bc901ce87cb495f0e3a4d102daaef47cb620ecc545143"},
+    {file = "python_restcountries-2.0.0-py3-none-any.whl", hash = "sha256:f92a7669962bdcb610f0bd500611f144a185ddc0556292167bb32327984fced9"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "pytz"
 version = "2023.3"
 description = "World timezone definitions, modern and historical"
@@ -3225,6 +3239,20 @@ files = [
 notebook = ">=4.4.1"
 
 [[package]]
+name = "wikipedia"
+version = "1.4.0"
+description = "Wikipedia API for Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "wikipedia-1.4.0.tar.gz", hash = "sha256:db0fad1829fdd441b1852306e9856398204dc0786d2996dd2e0c8bb8e26133b2"},
+]
+
+[package.dependencies]
+beautifulsoup4 = "*"
+requests = ">=2.0.0,<3.0.0"
+
+[[package]]
 name = "zipp"
 version = "3.16.2"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -3242,4 +3270,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "f6e29f83552c5681aa575f6f891b5197b8a397f17f6ecc776a79060c70cf1180"
+content-hash = "ed3e1f826ecb33f1a71a0f8ea4a309b7f8331c8e488f3bbee52fdb9bea6e325e"
