@@ -21,19 +21,19 @@ It allows an insight to any individual country selected. Here are some examples 
 
 ## General information:
 
-![image](https://github.com/MartaRggc/world_glimpse_front/assets/137410300/059910f4-f103-4c8f-8c6d-3bab7b09fa50)
+![image](images/general.png)
 
 ## Ecological footprint:
 
-![image](https://github.com/MartaRggc/world_glimpse_front/assets/137410300/9cb1e24e-ce4c-4d94-bc58-bace121de60d)
+![image](images/footprint.png)
 
 ## Economic inequality:
 
-![image](https://github.com/MartaRggc/world_glimpse_front/assets/137410300/0059cf6d-90dd-4476-b48d-2845e422b1a5)
+![image](images/economic_inequality.png)
 
 # Worldwide view:
 
 A color-filled kepler map is rendered to allow a comparison among countries with the most significant index or quantity of each category:
 
-![image](https://github.com/MartaRggc/world_glimpse_front/assets/137410300/09ab18c9-8ef0-4581-a4c3-1157fb3b29a6)
+![image](images/worldview.png)
 
