@@ -73,8 +73,8 @@ if st.session_state.country_view:
         requests.get(f'{api_url}/countries').json()
     ).set_index('country_name').to_dict()['country_id'][country_selected_name]
 
-    st.sidebar.header(f'Last news in {country_selected_name}')
-    st.sidebar.write('##')
+    st.sidebar.title(f'Last news in {country_selected_name}')
+    st.sidebar.subheader('##', divider='blue')
 
     default_country = 'No info available for this country.'
     default_region = 'No info available for this region.'
@@ -139,7 +139,6 @@ if st.session_state.country_view:
 
         except:
             st.write(default_country)
-
 
     elif st.session_state.footprint:
 
@@ -218,7 +217,6 @@ if st.session_state.country_view:
         if w == 0:
             st.write(default_country)
 
-
     elif st.session_state.gender:
 
         ggi = requests.get(f'{api_url}/countries_ggi').json()
@@ -272,7 +270,6 @@ if st.session_state.country_view:
         if w == 0:
             st.write(default_country)
 
-
     elif st.session_state.general:
 
         general_info = requests.get(f'{api_url}/country/{country_selected_id}/general').json()
@@ -284,10 +281,24 @@ if st.session_state.country_view:
             pass
 
         if general_info['summary'] is None:
-            st.info(f"Hi! I'm Wikipedia-API python library. I do make a lot of mistakes.. sorry. I cannot provide you"
+            if country_selected_name == 'Spain':
+                st.write("Spain (Spanish: España, [esˈpaɲa] i), or the Kingdom of Spain (Reino de España),[f] is a "
+                         "country located in Southwestern Europe, with parts of its territory in the Atlantic Ocean, "
+                         "in the Mediterranean Sea and in Africa.[11][g] It is the largest country in Southern Europe "
+                         "and the fourth-most populous European Union member state. "
+                         "Spanning across the majority of the Iberian Peninsula, its territory also includes the "
+                         "Canary Islands in the Atlantic Ocean, the Balearic Islands in the Mediterranean Sea, and the "
+                         "autonomous cities of Ceuta and Melilla in Africa. Peninsular Spain is bordered to the north "
+                         "by France, Andorra, and the Bay of Biscay; to the east and south by the Mediterranean "
+                         "Sea and Gibraltar; and to the west by Portugal and the Atlantic Ocean. ")
+                st.write('#')
+
+            else:
+                st.info(
+                    f"Hi! I'm Wikipedia-API python library. I do make a lot of mistakes.. sorry. I cannot provide you"
                     f" with information about {country_selected_name}. "
                     f"However, check out this other data from restcountries api! :")
-            st.write('##')
+                st.write('##')
 
         c3, c4 = st.columns([1, 1])
         with c3:
