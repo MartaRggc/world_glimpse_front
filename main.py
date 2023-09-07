@@ -275,8 +275,18 @@ if st.session_state.country_view:
         general_info = requests.get(f'{api_url}/country/{country_selected_id}/general').json()
         st.header(country_selected_name, divider='rainbow')
         try:
-            st.write('.'.join(general_info['summary'].split('.')[:7]) + '...')
-            st.write('#')
+            if country_selected_name == 'Iceland':
+                st.write("Iceland (Icelandic: Ísland, pronounced [ˈistlant] i)[d] is a Nordic island country between "
+                         "the North Atlantic and Arctic Oceans, on the Mid-Atlantic Ridge between North America "
+                         "and Europe. It is linked culturally and politically with Europe, and is the region's most "
+                         "sparsely populated country.[12] Its capital and largest city is Reykjavík, which is home to "
+                         "about 36% of the country's roughly 380,000 residents. The official language of the country "
+                         "is Icelandic.")
+                st.write('#')
+
+            else:
+                st.write('.'.join(general_info['summary'].split('.')[:7]) + '...')
+                st.write('#')
         except:
             pass
 
